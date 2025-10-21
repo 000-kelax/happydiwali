@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Diwali 💖</title>
+<style>
+body {
+  margin:0; padding:0; overflow:hidden;
+  background: radial-gradient(circle at center, #000000, #120022);
+  font-family: 'Arial', sans-serif;
+  color: white;
+  text-align: center;
+}
+
+/* Page Heading */
+h1 {
+  position: absolute; top:5%; width:100%;
+  font-size:3em; color: gold;
+  text-shadow: 0 0 20px #ff0055, 0 0 40px #ff7700, 0 0 60px #ff00aa;
+  animation: glow 1.5s infinite alternate;
+  cursor: pointer;
+  transition: transform 0.3s, text-shadow 0.3s;
+}
+h1:hover {
+  transform: scale(1.05);
+  text-shadow: 0 0 30px #ff3399, 0 0 60px #ff8800, 0 0 90px #ff00ff;
+}
+@keyframes glow {
+  from {text-shadow: 0 0 10px #ff0055,0 0 20px #ff7700,0 0 30px #ff00aa;}
+  to {text-shadow: 0 0 20px #ff3399,0 0 40px #ff8800,0 0 60px #ff00ff;}
+}
+
+/* Surprise Button */
+#btnSurprise {
+  position:absolute; bottom:10%; left:50%;
+  transform:translateX(-50%);
+  padding:20px 40px; font-size:1.3em;
+  color:white; background: linear-gradient(45deg,#ff3366,#ffcc33);
+  border:none; border-radius:12px; cursor:pointer;
+  box-shadow:0 0 20px #ff3366,0 0 40px #ffcc33;
+  transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
+}
+#btnSurprise:hover {
+  transform:translateX(-50%) scale(1.1) rotate(-2deg);
+  box-shadow:0 0 30px #ff66aa,0 0 60px #ffee77;
+  background: linear-gradient(45deg,#ff66aa,#ffee77);
+}
+
+/* Card Style */
+#card {
+  position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+  width:80%; max-width:400px; padding:30px;
+  background: linear-gradient(145deg, #ff6b6b, #f7d794);
+  border-radius: 25px;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+  color: #fff;
+  font-size: 1.3em; 
+  opacity:0; 
+  transition: opacity 1.5s ease-in-out, transform 0.5s;
+}
+#card h2 {
+  color: #fff8dc; margin-bottom:10px;
+  text-shadow: 2px 2px 8px #ff8c00;
+}
+#card p {
+  color:#fff;
+}
+#card.show {
+  opacity:1;
+  transform:translate(-50%, -50%) scale(1.05);
+}
+
+/* Canvas */
+canvas { display:block; }
+</style>
+</head>
+<body>
+<h1>Happy Diwali! 💖</h1>
+<button id="btnSurprise">🎁 Surprise Box 🎁</button>
+
+<!-- Romantic Diwali Card -->
+<div id="card">
+  <h2>Special Diwali Surprise 🎁</h2>
+  <p>…hoping it shines as bright as your presence in my thoughts.<br>Wishing you a warm and joyful Diwali! 💖</p>
+</div>
+
+<canvas id="fireworks"></canvas>
+
+<script>
+const canvas = document.getElementById('fireworks');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+// Particle class
+class Particle {
+  constructor(x, y, color) {
+    this.x = x; this.y = y;
+    this.color = color;
+    this.alpha = 1;
+    this.size = 3;
+  }
+  draw() {
+    ctx.globalAlpha = this.alpha;
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
+// Firework class
+class Firework {
+  constructor(x, y){
+    this.x = x; this.y = y;
+  }
+  explode() {
+    const cx = this.x;
+    const cy = this.y;
+    const color = `hsl(${Math.random()*360},100%,60%)`;
+    for(let t=0; t<2*Math.PI; t+=0.01){
+      const hx = 16*Math.pow(Math.sin(t),3);
+      const hy = -(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t));
+      const px = cx + hx * 2;
+      const py = cy + hy * 2;
+      const speed = Math.random()*12 + 6;
+      const angle = Math.atan2(hy, hx);
+      particles.push({
+        x: px, y: py,
+        dx: Math.cos(angle)*speed,
+        dy: Math.sin(angle)*speed,
+        color: color,
+        alpha:1
+      });
+    }
+  }
+}
+
+// Animate particles
+function animate(){
+  ctx.fillStyle='rgba(0,0,0,0.2)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  for(let i=particles.length-1;i>=0;i--){
+    const p = particles[i];
+    p.x += p.dx*0.05;
+    p.y += p.dy*0.05;
+    p.alpha -= 0.015;
+    const particleObj = new Particle(p.x, p.y, p.color);
+    particleObj.alpha = p.alpha;
+    particleObj.draw();
+    if(p.alpha <=0) particles.splice(i,1);
+  }
+  requestAnimationFrame(animate);
+}
+animate();
+
+// Fireworks only on left/right sides
+function launchFirework(){
+  const side = Math.random() < 0.5 ? 'left' : 'right';
+  let xPos = side==='left' ? Math.random() * (canvas.width/3) : canvas.width/3*2 + Math.random()*(canvas.width/3);
+  let yPos = Math.random() * canvas.height * 0.6 + canvas.height*0.2;
+  const fw = new Firework(xPos, yPos);
+  fw.explode();
+}
+setInterval(launchFirework, 1000);
+
+// Surprise box click
+document.getElementById('btnSurprise').addEventListener('click', ()=>{
+  document.getElementById('btnSurprise').style.display = 'none';
+
+  const numBlasts = Math.floor(Math.random() * 2) + 2; 
+  for(let i=0;i<numBlasts;i++){
+    const side = Math.random() < 0.5 ? 'left' : 'right';
+    let xPos = side==='left' ? Math.random()*(canvas.width/3) : canvas.width/3*2 + Math.random()*(canvas.width/3);
+    let yPos = canvas.height/2 + (Math.random()-0.5)*200;
+    const blastFw = new Firework(xPos, yPos);
+    blastFw.explode();
+  }
+
+  setTimeout(()=>{
+    document.getElementById('card').classList.add('show');
+  }, 1000);
+});
+</script>
+</body>
+</html>
